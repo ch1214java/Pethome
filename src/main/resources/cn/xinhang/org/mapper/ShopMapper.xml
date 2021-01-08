@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.xinhang.org.mapper.ShopMapper">
+
+    <!--void save(Shop shop);-->
+    <insert id="save">
+        insert into t_shop (username, email, phone, salt, password, age, state, department_id, logininfo_id, shop_id)
+        values (#{username}, #{email},#{phone}, #{salt}, #{password}, #{age}, #{state}, #{department_id}, #{logininfo_id}, #{shop_id});
+    </insert>
+
+    <!--void update(Shop shop);-->
+    <update id="update">
+        update t_shop set
+        sn = #{sn},
+        name = #{name},
+        dirPath = #{dirPath},
+        state = #{state},
+        manager_id = #{manager.id},
+        parent_id = #{parent.id}
+        where id = #{id};
+    </update>
+
+    <!--void remove(Long id);-->
+    <delete id="remove" parameterType="long">
+        DELETE FROM t_shop WHERE id = #{id}
+    </delete>
+
+    <!--Shop loadById(Long id);-->
+    <select id="loadById" parameterType="long" resultType="cn.xinhang.org.domain.Shop">
+        select * from t_shop WHERE id = #{id};
+    </select>
+
+    <!--List<Shop> loadAll();-->
+    <select id="loadAll" resultType="cn.xinhang.org.domain.Shop">
+        select * from t_shop;
+    </select>
+
+    <!--Integer queryCount(ShopQuery query);-->
+    <select id="queryCount" resultType="integer" parameterType="cn.xinhang.org.domain.Shop">
+        select COUNT(*) from t_shop e
+        <include refid="keyword"/>
+    </select>
+
+
+    <!--List<Shop> queryDate(ShopQuery query);-->
+    <select id="queryDate" resultMap="ShopMap" parameterType="cn.xinhang.org.query.ShopQuery">
+        SELECT
+            e.*, d.id did,
+            d. NAME dname,
+            l.id lid,
+            l.username lname,
+            s.id sid,
+            s. NAME sname
+        FROM
+            t_shop e
+        LEFT JOIN t_department d ON e.department_id = d.id
+        LEFT JOIN t_logininfo l ON e.logininfo_id = l.id
+        LEFT JOIN t_shop s ON e.shop_id = s.id
+        <include refid="keyword"/>
+        limit #{start},#{pageSize}
+    </select>
+    <sql id="keyword">
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (e.username LIKE concat("%",#{keyword},"%") or e.phone LIKE concat("%",#{keyword},"%") or e.age LIKE concat("%",#{keyword},"%"))
+            </if>
+        </where>
+    </sql>
+    <resultMap id="ShopMap" type="cn.xinhang.org.domain.Shop">
+        <!--private Long id;
+        private String username;
+        private String email;
+        private String phone;
+        private String password;
+        private Integer age;
+        private Integer state;
+        private Department department;
+        private Long logininfo_id;
+        private Long shop_id;-->
+        <id column="id" property="id"></id>
+        <result column="username" property="username"></result>
+        <result column="email" property="email"></result>
+        <result column="phone" property="phone"></result>
+        <result column="password" property="password"></result>
+        <result column="age" property="age"></result>
+        <result column="state" property="state"></result>
+        <association property="shop" javaType="cn.xinhang.org.domain.Shop">
+            <id column="sid" property="id"></id>
+            <result column="sname" property="name"></result>
+        </association>
+    </resultMap>
+    <!--void patchDel(List<Long> ids);-->
+    <delete id="patchDel" parameterType="long">
+        DELETE FROM t_shop WHERE id IN
+        <foreach collection="list" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

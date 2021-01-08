@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.xinhang.org.mapper.DepartmentMapper">
+
+    <!--void save(Department department);-->
+    <insert id="save" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        insert into t_department (sn, name, dirPath, state, manager_id, parent_id)
+        values (#{sn}, #{name}, #{dirPath}, #{state}, #{manager.id}, #{parent.id});
+    </insert>
+
+    <!--void update(Department department);-->
+    <update id="update">
+        update t_department set
+        sn = #{sn},
+        name = #{name},
+        dirPath = #{dirPath},
+        state = #{state},
+        manager_id = #{manager.id},
+        parent_id = #{parent.id}
+        where id = #{id};
+    </update>
+
+    <!--void remove(Long id);-->
+    <delete id="remove" parameterType="long">
+        DELETE FROM t_department WHERE id = #{id}
+    </delete>
+
+    <!--Department loadById(Long id);-->
+    <select id="loadById" parameterType="long" resultType="cn.xinhang.org.domain.Department">
+        select * from t_department WHERE id = #{id};
+    </select>
+
+    <!--List<Department> loadAll();-->
+    <select id="loadAll" resultType="cn.xinhang.org.domain.Department">
+        select * from t_department;
+    </select>
+
+    <!--Integer queryCount(DepartmentQuery query);-->
+    <select id="queryCount" resultType="integer" parameterType="cn.xinhang.org.domain.Department">
+        select COUNT(*) from t_department d
+        <include refid="keyword"/>
+    </select>
+
+
+    <!--List<Department> queryDate(DepartmentQuery query);-->
+    <select id="queryDate" resultMap="DepartmentMap" parameterType="cn.xinhang.org.query.DepartmentQuery">
+        SELECT
+            d.*, p.id pid,
+            p. NAME pname,
+            e.id eid,
+            e.username ename
+        FROM
+            t_department d
+        LEFT JOIN t_department p ON d.parent_id = p.id
+        LEFT JOIN t_employee e ON d.manager_id = e.id
+        <include refid="keyword"/>
+        limit #{start},#{pageSize}
+    </select>
+    <sql id="keyword">
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (d.sn LIKE concat("%",#{keyword},"%") or d.name LIKE concat("%",#{keyword},"%"))
+            </if>
+        </where>
+    </sql>
+    <resultMap id="DepartmentMap" type="cn.xinhang.org.domain.Department">
+        <id column="id" property="id"></id>
+        <result column="sn" property="sn"></result>
+        <result column="name" property="name"></result>
+        <result column="dirPath" property="dirPath"></result>
+        <result column="state" property="state"></result>
+        <association property="parent" javaType="cn.xinhang.org.domain.Department">
+            <id column="pid" property="id"></id>
+            <result column="pname" property="name"></result>
+        </association>
+        <association property="manager" javaType="cn.xinhang.org.domain.Employee">
+            <id column="eid" property="id"></id>
+            <result column="ename" property="username"></result>
+        </association>
+    </resultMap>
+    <!--void patchDel(List<Long> ids);-->
+    <delete id="patchDel" parameterType="long">
+        DELETE FROM t_department WHERE id IN
+        <foreach collection="list" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+    <!--List<Department> loadDeptTree();-->
+    <select id="loadDeptTree" resultMap="loadDeptTree">
+        select f.id, f.name, s.id sid, s.name sname from t_department f
+        LEFT JOIN t_department s ON  s.parent_id = f.id
+        WHERE f.parent_id IS NULL;
+    </select>
+    <resultMap id="loadDeptTree" type="cn.xinhang.org.domain.Department">
+        <id property="id" column="id"></id>
+        <result property="name" column="name"></result>
+        <collection property="children" javaType="arrayList" ofType="cn.xinhang.org.domain.Department">
+            <id property="id" column="sid"></id>
+            <result property="name" column="sname"></result>
+        </collection>
+    </resultMap>
+</mapper>
