@@ -2,7 +2,6 @@ package cn.xinhang.org.mapper;
 
 import cn.xinhang.basic.mapper.BaseMapper;
 import cn.xinhang.org.domain.Department;
-import cn.xinhang.org.query.DepartmentQuery;
 
 import java.util.List;
 

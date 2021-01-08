@@ -6,10 +6,6 @@ import cn.xinhang.org.query.DepartmentQuery;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
-
-import static org.junit.Assert.*;
-
 public class DepartmentServiceTest extends BaseTest {
 
     @Autowired

@@ -1,15 +1,11 @@
 package cn.xinhang.org.service.impl;
 
 import cn.xinhang.basic.service.impl.BaseServiceImpl;
-import cn.xinhang.basic.util.PageList;
 import cn.xinhang.org.domain.Department;
 import cn.xinhang.org.mapper.DepartmentMapper;
-import cn.xinhang.org.query.DepartmentQuery;
 import cn.xinhang.org.service.IDepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 

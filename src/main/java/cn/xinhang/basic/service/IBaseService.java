@@ -2,6 +2,7 @@ package cn.xinhang.basic.service;
 
 import cn.xinhang.basic.query.BaseQuery;
 import cn.xinhang.basic.util.PageList;
+
 import java.util.List;
 
 public interface IBaseService<T> {
