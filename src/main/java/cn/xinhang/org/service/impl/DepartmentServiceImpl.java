@@ -13,6 +13,7 @@ import java.util.List;
 public class DepartmentServiceImpl extends BaseServiceImpl<Department> implements IDepartmentService {
 
     @Autowired
+    //测试
     DepartmentMapper departmentMapper;
 
     @Override//父类的add方法用不了，自己实现业务逻辑
