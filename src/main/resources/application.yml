@@ -9,6 +9,9 @@ spring:
 
 mybatis:
   type-aliases-package: cn.xinhang.org.domain,cn.xinhang.org.query,
+                        cn.xinhang.basic.domain,cn.xinhang.basic.query,
+                        cn.xinhang.user.domain,cn.xinhang.user.query,
+
 logging:
   level:
     root: debug

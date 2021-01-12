@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.xinhang.user.mapper.UserMapper">
+    <select id="findByPhone" resultType="cn.xinhang.user.domain.User" parameterType="string">
+        select * from t_user WHERE t_user.phone = #{phone};
+    </select>
+    <insert id="save">
+        insert into t_user (username, email, phone, salt, password, state, age, createtime, headImg, logininfo_id)
+        values (#{username},#{email},#{phone},#{salt},#{password},#{state},#{age},#{createtime},#{headImg},#{logininfo_id});
+    </insert>
+</mapper>

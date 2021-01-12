@@ -23,7 +23,7 @@ public class AjaxResult {
     }
     public AjaxResult setSuccess(String message) {
         this.success = false;
-        this.message = "失败";
+        this.message = message;
         return this;
     }
 }
