@@ -5,10 +5,9 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
 @Data
 public class Employee extends BaseDomain {
+    private Long id;
     private String username;
     private String email;
     private String phone;
@@ -16,7 +15,8 @@ public class Employee extends BaseDomain {
     private String salt;
     private String password;
     private Integer age;
-    private Integer state;
+    //状态：0表示正常 -1表示禁用 1表示待审核 2表示待激活
+    private Integer state = 1;
     private Department department;
 
     private Long department_id;
