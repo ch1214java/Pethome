@@ -6,6 +6,8 @@ import lombok.Data;
 public class AjaxResult {
     private Boolean success = true;
     private String message = "操作成功！";
+    //携带的数据
+    private Object data;
 
     public AjaxResult() {
     }
@@ -24,6 +26,10 @@ public class AjaxResult {
     public AjaxResult setSuccess(String message) {
         this.success = false;
         this.message = message;
+        return this;
+    }
+    public AjaxResult setData(Object data){
+        this.data = data;
         return this;
     }
 }
