@@ -4,7 +4,7 @@ import cn.xinhang.basic.util.AjaxResult;
 import cn.xinhang.basic.util.PageList;
 import cn.xinhang.org.domain.Shop;
 import cn.xinhang.org.query.ShopQuery;
-import cn.xinhang.org.service.IShopService;
+import cn.xinhang.user.service.IShopService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,13 +86,21 @@ public class ShopController {
     }
 
     /**
-     * 查询所有
+     * 平台工作人员:入驻审核
+     * @param id 店铺id
+     * @param type 审核操作类型：1表示拒绝 2表示驳回 3表示审核通过
      * @return
      */
-    @GetMapping
+    @GetMapping("/{id}/{type}")
     @ApiOperation(value = "查询所有数据",notes = "查询所有数据")
-    public List<Shop> getAll(){
-        return shopService.getall();
+    public AjaxResult shopAudit(@PathVariable("id") Long id,@PathVariable("type") Integer type){
+        try {
+            shopService.shopAudit(id,type);
+            return AjaxResult.me();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return AjaxResult.me().setSuccess("审核失败！" + e.getMessage());
+        }
     }
 
     /**
