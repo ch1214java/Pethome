@@ -7,13 +7,19 @@ import cn.xinhang.user.domain.User;
 import cn.xinhang.user.domain.dto.UserDto;
 import cn.xinhang.user.mapper.UserMapper;
 import cn.xinhang.user.service.IUserService;
+import net.minidev.json.JSONUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.http.HttpSession;
 import java.sql.Struct;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true,propagation = Propagation.SUPPORTS)
@@ -22,6 +28,12 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements IUserServi
     @Autowired
     private UserMapper userMapper;
 
+    /**
+     * 验证手机号是否被注册
+     * @param phone
+     * @param type phone_reg表示手机验证码注册，phone_login表示手机验证码登录
+     * @return
+     */
     @Override
     public AjaxResult validatePhone(String type, String phone) {
         User user = userMapper.findByPhone(phone);
@@ -40,6 +52,12 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements IUserServi
         return AjaxResult.me();
     }
 
+    /**
+     * 发送手机短信
+     * @param phone
+     * @param type phone_reg表示手机验证码注册，phone_login表示手机验证码登录
+     * @return
+     */
     @Override
     public AjaxResult sendMobileCode(String type, String phone) {
         //1.随机生成一个验证码
@@ -68,8 +86,6 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements IUserServi
                 SmsUtils.send(phone, content);
                 System.out.println(content);
             }
-
-
         }else{//超过5分钟，或者就是第一次获取
             //2.保存到Redis中，并且设置5分钟过期  key: phone_reg-18996157300  value：验证码-时间毫秒
             RedisUtils.INSTANCE.set(type+"-"+phone, verifyCode+"-"+currentTime, 300);
@@ -81,7 +97,11 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements IUserServi
         //4.给前端返回消息
         return AjaxResult.me().setSuccess("短信验证码已发送，请在5分钟内完成操作！");
     }
-
+    /**
+     * 前台用户注册，提交注册表单
+     * @param userDto
+     * @return
+     */
     @Transactional
     public AjaxResult phoneReg(UserDto userDto) {
         if(Constant.PHONE_REG.equals(userDto.getType())){
@@ -108,4 +128,71 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements IUserServi
         }
         return AjaxResult.me().setSuccess("注册失败");
     }
+
+    /**
+     * 用户登录
+     * @param userDto  type属性为front表示前台用户登录，admin表示后台用户登录
+     * @return
+     */
+    @Override
+    public AjaxResult userLogin(UserDto userDto, HttpSession session) {
+        //前台用户登录：查询t_user
+        if(Constant.FRONT.equals(userDto.getType())){
+            //通过账号查询用户对象
+            User loginUser = userMapper.findByAccount(userDto.getUsername());
+            if(loginUser != null){
+                //先将前端传递的密码 MD5加密后，在与数据库中做对比
+                String md5Password = MD5Utils.encrypByMd5(userDto.getPassword() + loginUser.getSalt());
+                if(md5Password.equals(loginUser.getPassword())){
+                    //登录成功，将用户对象保存到session中
+                    //session.setAttribute(Constant.KEY_OF_LOGINUSER,loginUser);
+
+                    //1）利用UUID生成一个token
+                    String userToken = UUID.randomUUID().toString();
+                    //把密码设置为空，防止破译密码泄露
+                    loginUser.setPassword(null);
+
+                    //2）Redis中存储对象，需要先将对象转化为json字符串
+                    String loginUserJsonStr = JsonUtils.toJsonString(loginUser);
+
+                    //3）存储到Redis中，并且设置30分钟过期
+                    RedisUtils.INSTANCE.set(userToken,loginUserJsonStr,Constant.EXPIRE_TIME_IN_REDIS);
+
+                    //4）封装HashMap返回userToken和loginUser
+                    Map<String,Object> map = new HashMap<>();
+                    map.put("userToken",userToken);
+                    map.put("loginUser",loginUserJsonStr);
+                    return AjaxResult.me().setData(map);
+                }
+                return AjaxResult.me().setSuccess("密码错误");
+            }
+            return AjaxResult.me().setSuccess("用户不存在");
+        }else if (Constant.ADMIN.equals(userDto.getType())){//后台用户登录
+
+        }
+        return null;
+    }
+
+    /**
+     * 查询所有
+     * @return
+     */
+    @Override
+    public List<User> getAll() {
+        return userMapper.getAll();
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

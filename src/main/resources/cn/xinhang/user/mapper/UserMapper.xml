@@ -8,4 +8,12 @@
         insert into t_user (username, email, phone, salt, password, state, age, createtime, headImg, logininfo_id)
         values (#{username},#{email},#{phone},#{salt},#{password},#{state},#{age},#{createtime},#{headImg},#{logininfo_id});
     </insert>
+    <!--User findByAccount(String username);-->
+    <select id="findByAccount" parameterType="string" resultType="cn.xinhang.user.domain.User">
+        select * from t_user WHERE t_user.username = #{username} OR t_user.email = #{username} OR t_user.phone = #{username};
+    </select>
+    <!--List<User> getAll();-->
+    <select id="getAll" resultType="cn.xinhang.user.domain.User">
+        select * from t_user;
+    </select>
 </mapper>

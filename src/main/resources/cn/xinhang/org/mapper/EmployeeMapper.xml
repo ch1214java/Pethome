@@ -2,8 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="cn.xinhang.org.mapper.EmployeeMapper">
 
-    <!--void save(Employee employee);-->
-    <insert id="save">
+    <!--void save(Employee employee);  useGeneratedKeys="true" keyProperty="id" 返回主键为id -->
+    <insert id="save" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
         insert into t_employee (username, email, phone, salt, password, age, state, department_id, logininfo_id, shop_id)
         values (#{username}, #{email},#{phone}, #{salt}, #{password}, #{age}, #{state}, #{department_id}, #{logininfo_id}, #{shop.id});
     </insert>
@@ -11,12 +11,16 @@
     <!--void update(Employee employee);-->
     <update id="update">
         update t_employee set
-        username = #{username},
-        email = #{email},
-        phone = #{phone},
-        age = #{age},
-        state = #{state},
-        shop_id = #{shop.id}
+        username=#{username},
+        email=#{email},
+        phone=#{phone},
+        salt=#{salt},
+        password=#{password},
+        age=#{age},
+        state=#{state},
+        department_id=#{department_id},
+        logininfo_id=#{logininfo_id},
+        shop_id=#{shop_id}
         where id = #{id};
     </update>
 
